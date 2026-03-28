@@ -1,0 +1,40 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Dart/Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+coverage/
+**/doc/api/
+
+# Generated
+*.g.dart
+*.freezed.dart
+
+# Pub
+pubspec.lock
+pubspec_overrides.yaml
+
+# Binary artifacts
+*.apk
+*.aab
+*.ipa
+*.dSYM/
+
+# Project-specific
+commands.md
+docs/dunya-publish-review.md
+
+# Claude
+.claude/
