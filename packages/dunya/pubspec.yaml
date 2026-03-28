@@ -4,9 +4,9 @@ description: >
   phone number parsing (E.164), favorites, recents, 13-locale translations.
   Powers dunya_ui. Zero Flutter dependency.
 version: 1.0.0
-homepage: https://github.com/yourname/dunya
-repository: https://github.com/yourname/dunya
-issue_tracker: https://github.com/yourname/dunya/issues
+homepage: https://github.com/Ahsan-Solutions/dunya
+repository: https://github.com/Ahsan-Solutions/dunya
+issue_tracker: https://github.com/Ahsan-Solutions/dunya/issues
 topics: [country, picker, iso-3166, phone, internationalization]
 environment:
   sdk: ">=3.0.0 <4.0.0"

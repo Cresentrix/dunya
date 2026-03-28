@@ -6,8 +6,10 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
   flutter: ">=3.10.0"
 dependencies:
-  dunya: ^1.0.0
-  dunya_ui: ^1.0.0
+  dunya:
+    path: ../../dunya
+  dunya_ui:
+    path: ../
   flutter:
     sdk: flutter
   flutter_localizations:
