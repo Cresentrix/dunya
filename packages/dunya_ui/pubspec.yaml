@@ -4,9 +4,9 @@ description: >
   Material & Cupertino adaptive, phone validation, 13 locales, A-Z sidebar,
   favorites, Form integration. One theme drives all.
 version: 1.0.0
-homepage: https://github.com/yourname/dunya
-repository: https://github.com/yourname/dunya
-issue_tracker: https://github.com/yourname/dunya/issues
+homepage: https://github.com/Ahsan-Solutions/dunya
+repository: https://github.com/Ahsan-Solutions/dunya
+issue_tracker: https://github.com/Ahsan-Solutions/dunya/issues
 topics: [country, picker, flag, material, cupertino]
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -20,7 +20,8 @@ platforms:
   linux:
 dependencies:
   cupertino_icons: ^1.0.8
-  dunya: ^1.0.0
+  dunya:
+    path: ../dunya
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.0
