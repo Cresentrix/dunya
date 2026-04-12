@@ -94,6 +94,10 @@ class DunyaDialCodeField extends StatelessWidget {
   /// Alpha-2 codes of countries to hide from the picker.
   final List<String> exclude;
 
+  /// When `true`, the picker cannot be opened and the phone input is
+  /// read-only. The field appears visually disabled.
+  final bool readOnly;
+
   const DunyaDialCodeField({
     required this.onCountryChanged,
     super.key,
@@ -113,6 +117,7 @@ class DunyaDialCodeField extends StatelessWidget {
     this.onFieldSubmitted,
     this.favorites = const [],
     this.exclude = const [],
+    this.readOnly = false,
   });
 
   @override
@@ -135,63 +140,68 @@ class DunyaDialCodeField extends StatelessWidget {
             borderRadius: t.resolveTriggerRadius(),
             border: Border.all(color: borderColor),
           ),
-          child: Row(
-            children: [
-              triggerBuilder != null
-                  ? triggerBuilder!(
-                      context,
-                      selectedCountry,
-                      () => _openPicker(context),
-                    )
-                  : _buildCountrySection(
-                      context, t, isDark, borderColor, cupertino),
-              Expanded(
-                child: cupertino
-                    ? CupertinoTextField(
-                        controller: controller,
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: _buildInputFormatters(),
-                        placeholder: numberHint ?? s.phoneHint,
-                        placeholderStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF8E8E93),
-                        ),
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: isDark
-                              ? const Color(0xFFEBEBF5)
-                              : const Color(0xFF1C1C1E),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: const BoxDecoration(),
-                        onChanged: enableValidation ? _onPhoneChanged : null,
-                        onEditingComplete: onFieldSubmitted,
+          child: Opacity(
+            opacity: readOnly ? 0.5 : 1.0,
+            child: Row(
+              children: [
+                triggerBuilder != null
+                    ? triggerBuilder!(
+                        context,
+                        selectedCountry,
+                        readOnly ? () {} : () => _openPicker(context),
                       )
-                    : TextField(
-                        controller: controller,
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: _buildInputFormatters(),
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: isDark
-                              ? const Color(0xFFEBEBF5)
-                              : const Color(0xFF1C1C1E),
-                        ),
-                        decoration: InputDecoration(
-                          hintText: numberHint ?? s.phoneHint,
-                          hintStyle: const TextStyle(
+                    : _buildCountrySection(
+                        context, t, isDark, borderColor, cupertino),
+                Expanded(
+                  child: cupertino
+                      ? CupertinoTextField(
+                          controller: controller,
+                          readOnly: readOnly,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: _buildInputFormatters(),
+                          placeholder: numberHint ?? s.phoneHint,
+                          placeholderStyle: const TextStyle(
                             fontSize: 16,
                             color: Color(0xFF8E8E93),
                           ),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 12),
-                          border: InputBorder.none,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: isDark
+                                ? const Color(0xFFEBEBF5)
+                                : const Color(0xFF1C1C1E),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: const BoxDecoration(),
+                          onChanged: enableValidation ? _onPhoneChanged : null,
+                          onEditingComplete: onFieldSubmitted,
+                        )
+                      : TextField(
+                          controller: controller,
+                          readOnly: readOnly,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: _buildInputFormatters(),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: isDark
+                                ? const Color(0xFFEBEBF5)
+                                : const Color(0xFF1C1C1E),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: numberHint ?? s.phoneHint,
+                            hintStyle: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF8E8E93),
+                            ),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 12),
+                            border: InputBorder.none,
+                          ),
+                          onChanged: enableValidation ? _onPhoneChanged : null,
+                          onEditingComplete: onFieldSubmitted,
                         ),
-                        onChanged: enableValidation ? _onPhoneChanged : null,
-                        onEditingComplete: onFieldSubmitted,
-                      ),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
         if (selectionLabel && selectedCountry != null)
@@ -238,21 +248,27 @@ class DunyaDialCodeField extends StatelessWidget {
               if (showCode || showArrow) const SizedBox(width: 6),
             ],
             if (showCode)
-              Text(
-                selectedCountry!.dialCode,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: textColor,
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Text(
+                  selectedCountry!.dialCode,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
                 ),
               ),
           ] else
-            const Text(
-              '+--',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF8E8E93),
+            const Directionality(
+              textDirection: TextDirection.ltr,
+              child: Text(
+                '+--',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF8E8E93),
+                ),
               ),
             ),
           if (showArrow) ...[
@@ -269,13 +285,13 @@ class DunyaDialCodeField extends StatelessWidget {
 
     if (cupertino) {
       return GestureDetector(
-        onTap: () => _openPicker(context),
+        onTap: readOnly ? null : () => _openPicker(context),
         child: content,
       );
     }
 
     return InkWell(
-      onTap: () => _openPicker(context),
+      onTap: readOnly ? null : () => _openPicker(context),
       child: content,
     );
   }
@@ -359,7 +375,7 @@ class _SelectionLabel extends StatelessWidget {
           const SizedBox(width: 6),
           Flexible(
             child: Text(
-              '$displayName  ${country.dialCode}',
+              displayName,
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).brightness == Brightness.dark
@@ -367,6 +383,19 @@ class _SelectionLabel extends StatelessWidget {
                     : const Color(0xFF636366),
               ),
               overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Text(
+              country.dialCode,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF8E8E93)
+                    : const Color(0xFF636366),
+              ),
             ),
           ),
         ],

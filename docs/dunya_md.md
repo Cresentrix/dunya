@@ -304,6 +304,10 @@ class DunyaCountryPicker extends StatelessWidget {
   final bool                     selectionLabel; // default: true — shows
       // label below field confirming selected country name + flag + dial code
 
+  // State
+  final bool                     readOnly;       // default: false — when true,
+      // picker cannot be opened and trigger renders at 50% opacity
+
   // Routes internally to _BottomSheetPresentation / _DialogPresentation
   // / _DropdownPresentation — all wrap the same _CountryListView
 }
@@ -328,6 +332,10 @@ class DunyaDialCodeField extends StatelessWidget {
   final DunyaPickerTriggerStyle  triggerStyle;   // default: all
   final Widget Function(BuildContext, Country?, VoidCallback)? triggerBuilder;
   final bool                     selectionLabel; // default: true
+
+  // State
+  final bool                     readOnly;       // default: false — when true,
+      // picker cannot open, phone input is read-only, field renders at 50% opacity
 }
 ```
 
@@ -392,6 +400,20 @@ DunyaCountryPicker(
 DunyaCountryPicker(
   selectionLabel: true,  // default
   ...
+)
+
+// Read-only mode — prevents user from changing the selection
+DunyaCountryPicker(
+  countries: CountryRepository.all,
+  selectedCountry: _selected,
+  onSelected: (_) {},
+  readOnly: true,  // picker will not open, trigger appears disabled
+)
+
+DunyaDialCodeField(
+  selectedCountry: _selected,
+  onCountryChanged: (_) {},
+  readOnly: true,  // country picker + phone input both locked
 )
 
 // triggerBuilder on DunyaDialCodeField
@@ -815,6 +837,7 @@ test/goldens/
 | Screen readers | VoiceOver + TalkBack · announces name + position e.g. "United Arab Emirates, 1 of 250" |
 | Focus order | Search bar auto-focused on open · logical tab order throughout |
 | Motion | Opacity transitions only — safe for `prefers-reduced-motion` |
+| RTL support | Dial codes (`+965`, `+971`, `+--`) are wrapped with explicit `Directionality(textDirection: TextDirection.ltr)` so the `+` prefix always renders before digits in RTL locales (Arabic, Hebrew, etc.). Country names remain in their natural text direction. |
 
 ---
 

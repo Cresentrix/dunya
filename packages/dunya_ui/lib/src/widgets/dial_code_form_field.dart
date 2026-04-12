@@ -60,6 +60,10 @@ class DunyaDialCodeFormField extends StatefulWidget {
   /// Alpha-2 codes of countries to hide from the picker.
   final List<String> exclude;
 
+  /// When `true`, the picker cannot be opened and the phone input is
+  /// read-only. The field appears visually disabled.
+  final bool readOnly;
+
   /// Validates the parsed [PhoneNumber]. Return `null` for valid, or an
   /// error string to display below the field.
   final String? Function(PhoneNumber?)? validator;
@@ -88,6 +92,7 @@ class DunyaDialCodeFormField extends StatefulWidget {
     this.glassEffect = true,
     this.favorites = const [],
     this.exclude = const [],
+    this.readOnly = false,
     this.validator,
     this.onSaved,
     this.autovalidateMode = AutovalidateMode.disabled,
@@ -176,6 +181,7 @@ class _DunyaDialCodeFormFieldState extends State<DunyaDialCodeFormField> {
               onFieldSubmitted: widget.onFieldSubmitted,
               favorites: widget.favorites,
               exclude: widget.exclude,
+              readOnly: widget.readOnly,
             ),
             if (field.hasError)
               Padding(

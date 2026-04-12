@@ -170,8 +170,10 @@ class _CountryPickerDemoState extends State<CountryPickerDemo> {
               ),
               const SizedBox(height: 8),
               DunyaCountryPicker(
+                readOnly: false,
                 countries: CountryRepository.all,
                 selectedCountry: _selectedCountry,
+                selectionLabel: true,
                 onSelected: (c) => setState(() => _selectedCountry = c),
                 favorites: const ['KW', 'US', 'GB'],
               ),
@@ -194,6 +196,7 @@ class _CountryPickerDemoState extends State<CountryPickerDemo> {
               ),
               const SizedBox(height: 8),
               DunyaDialCodeField(
+                readOnly: false,
                 selectedCountry: _phoneCountry,
                 onCountryChanged: (c) => setState(() => _phoneCountry = c),
                 controller: _phoneController,

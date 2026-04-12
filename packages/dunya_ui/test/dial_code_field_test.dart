@@ -45,7 +45,8 @@ void main() {
         ),
       ));
 
-      expect(find.text('+971'), findsOneWidget);
+      // One in the country section, one in the selection label
+      expect(find.text('+971'), findsNWidgets(2));
       // One flag in the trigger, one in the selection label
       expect(find.byType(FlagWidget), findsNWidgets(2));
     });
