@@ -106,7 +106,8 @@ void main() {
           ),
         ));
 
-        expect(find.text('United Arab Emirates'), findsOneWidget);
+        // Trigger label + selection label
+        expect(find.text('United Arab Emirates'), findsNWidgets(2));
       });
     });
 

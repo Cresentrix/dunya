@@ -102,6 +102,9 @@ class DunyaCountryPicker extends StatelessWidget {
   /// Custom UI strings. Falls back to auto-detected locale strings.
   final DunyaStrings? strings;
 
+  /// When `true`, the picker cannot be opened and the trigger appears disabled.
+  final bool readOnly;
+
   const DunyaCountryPicker({
     required this.countries,
     required this.onSelected,
@@ -121,6 +124,7 @@ class DunyaCountryPicker extends StatelessWidget {
     this.favorites = const [],
     this.exclude = const [],
     this.strings,
+    this.readOnly = false,
   });
 
   DunyaStrings _resolveStrings(BuildContext context) {
@@ -145,61 +149,72 @@ class DunyaCountryPicker extends StatelessWidget {
     final resolvedSearchHint = searchHint ?? s.search;
 
     if (mode == DunyaPickerMode.dropdown) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (cupertino)
-            CupertinoDropdownPresentation(
-              countries: filtered,
-              selectedCountry: selectedCountry,
-              onSelected: onSelected,
-              searchHint: resolvedSearchHint,
-              itemBuilder: itemBuilder,
-              emptyBuilder: emptyBuilder,
-              searchAutofocus: searchAutofocus,
-              glassEffect: glassEffect,
-              favorites: favorites,
-              placeholder: s.selectCountry,
-              noResultsText: s.noResults,
-            )
-          else
-            DropdownPresentation(
-              countries: filtered,
-              selectedCountry: selectedCountry,
-              onSelected: onSelected,
-              searchHint: resolvedSearchHint,
-              itemBuilder: itemBuilder,
-              emptyBuilder: emptyBuilder,
-              searchAutofocus: searchAutofocus,
-              favorites: favorites,
-              placeholder: s.selectCountry,
-              noResultsText: s.noResults,
-            ),
-          if (selectionLabel && selectedCountry != null)
-            _SelectionLabel(country: selectedCountry!),
-        ],
+      return Opacity(
+        opacity: readOnly ? 0.5 : 1.0,
+        child: IgnorePointer(
+          ignoring: readOnly,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (cupertino)
+                CupertinoDropdownPresentation(
+                  countries: filtered,
+                  selectedCountry: selectedCountry,
+                  onSelected: onSelected,
+                  searchHint: resolvedSearchHint,
+                  itemBuilder: itemBuilder,
+                  emptyBuilder: emptyBuilder,
+                  searchAutofocus: searchAutofocus,
+                  glassEffect: glassEffect,
+                  favorites: favorites,
+                  placeholder: s.selectCountry,
+                  noResultsText: s.noResults,
+                )
+              else
+                DropdownPresentation(
+                  countries: filtered,
+                  selectedCountry: selectedCountry,
+                  onSelected: onSelected,
+                  searchHint: resolvedSearchHint,
+                  itemBuilder: itemBuilder,
+                  emptyBuilder: emptyBuilder,
+                  searchAutofocus: searchAutofocus,
+                  favorites: favorites,
+                  placeholder: s.selectCountry,
+                  noResultsText: s.noResults,
+                ),
+              if (selectionLabel && selectedCountry != null)
+                _SelectionLabel(country: selectedCountry!),
+            ],
+          ),
+        ),
       );
     }
 
+    final openPicker = readOnly ? null : () => _openPicker(context);
     final trigger = triggerBuilder != null
-        ? triggerBuilder!(context, selectedCountry, () => _openPicker(context))
+        ? triggerBuilder!(
+            context, selectedCountry, openPicker ?? () {})
         : _TriggerButton(
             selectedCountry: selectedCountry,
             triggerStyle: triggerStyle,
-            onTap: () => _openPicker(context),
+            onTap: openPicker,
             useCupertino: cupertino,
             placeholder: s.selectCountry,
           );
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        trigger,
-        if (selectionLabel && selectedCountry != null)
-          _SelectionLabel(country: selectedCountry!),
-      ],
+    return Opacity(
+      opacity: readOnly ? 0.5 : 1.0,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          trigger,
+          if (selectionLabel && selectedCountry != null)
+            _SelectionLabel(country: selectedCountry!),
+        ],
+      ),
     );
   }
 
@@ -284,14 +299,14 @@ class DunyaCountryPicker extends StatelessWidget {
 class _TriggerButton extends StatelessWidget {
   final Country? selectedCountry;
   final DunyaPickerTriggerStyle triggerStyle;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool useCupertino;
   final String placeholder;
 
   const _TriggerButton({
     required this.selectedCountry,
     required this.triggerStyle,
-    required this.onTap,
+    this.onTap,
     this.useCupertino = false,
     this.placeholder = 'Select Country',
   });
@@ -387,12 +402,15 @@ class _TriggerButton extends StatelessWidget {
     }
 
     if (showCode) {
-      widgets.add(Text(
-        country.dialCode,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: textColor,
+      widgets.add(Directionality(
+        textDirection: TextDirection.ltr,
+        child: Text(
+          country.dialCode,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
         ),
       ));
       widgets.add(const SizedBox(width: 8));
@@ -431,7 +449,7 @@ class _SelectionLabel extends StatelessWidget {
           const SizedBox(width: 6),
           Flexible(
             child: Text(
-              '$displayName  ${country.dialCode}',
+              displayName,
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).brightness == Brightness.dark
@@ -439,6 +457,19 @@ class _SelectionLabel extends StatelessWidget {
                     : const Color(0xFF636366),
               ),
               overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Text(
+              country.dialCode,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF8E8E93)
+                    : const Color(0xFF636366),
+              ),
             ),
           ),
         ],
