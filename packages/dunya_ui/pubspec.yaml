@@ -20,8 +20,7 @@ platforms:
   linux:
 dependencies:
   cupertino_icons: ^1.0.8
-  dunya:
-    path: ../dunya
+  dunya: ^1.0.0
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.0
