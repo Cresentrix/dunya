@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.1] - 2026-06-26
+
+### Fixed
+- Shortened pubspec description to comply with pub.dev 60-180 character limit
+
 All notable changes documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
