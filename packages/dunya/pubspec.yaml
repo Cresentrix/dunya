@@ -1,9 +1,8 @@
 name: dunya
-description: >
+description: >-
   Pure-Dart country data & phone validation. 250 countries, ranked search,
-  phone number parsing (E.164), favorites, recents, 13-locale translations.
-  Powers dunya_ui. Zero Flutter dependency.
-version: 1.0.0
+  E.164 parsing, 13-locale translations. Powers dunya_ui. Zero Flutter dependency.
+version: 1.0.1
 homepage: https://github.com/Ahsan-Solutions/dunya
 repository: https://github.com/Ahsan-Solutions/dunya
 issue_tracker: https://github.com/Ahsan-Solutions/dunya/issues
