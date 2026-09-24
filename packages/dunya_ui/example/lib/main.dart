@@ -107,7 +107,7 @@ class _CountryPickerDemoState extends State<CountryPickerDemo> {
           content: Text(
             'Submitted: ${_nameController.text}, '
             '${_selectedCountry!.name}, '
-            '+${_phoneCountry?.dialCode ?? ''} ${_phoneController.text}',
+            '${_phoneCountry?.dialCode ?? ''} ${_phoneController.text}',
           ),
           backgroundColor: Colors.green,
         ),

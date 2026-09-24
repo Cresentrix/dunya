@@ -14,6 +14,11 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+# dunya_ui depends on the hosted dunya; use the local copy so the example
+# always runs against the code in this repo.
+dependency_overrides:
+  dunya:
+    path: ../../dunya
 dev_dependencies:
   flutter_lints: ^4.0.0
   flutter_test:
