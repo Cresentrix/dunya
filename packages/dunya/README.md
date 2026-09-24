@@ -12,19 +12,19 @@ Pure-Dart country data, search, phone validation, and localization. Powers [duny
 
 - 250 countries with ISO 3166-1 data (CC0, offline)
 - Ranked search: alpha2 > dial code > name > native name > alpha3
-- Phone validation: per-country min/max digit lengths (180+ countries)
+- Phone validation: per-country min/max digit lengths for every inhabited country and territory
 - `PhoneNumber.parse()`: nationalNumber, internationalNumber, e164, dialCode, isValid
 - Favorites: pin countries to top in specified order
 - Recents: in-memory tracker for recently selected countries
 - Localization: 13 built-in locales (AR, DE, ES, FR, HI, IT, JA, KO, PT, RU, TR, UR, ZH)
 - Controller with streams, 150ms debounced search, region filtering
-- Zero Flutter UI dependency
+- Pure Dart: no Flutter SDK needed, so it also works in servers and CLIs
 
 ## Installation
 
 ```yaml
 dependencies:
-  dunya: ^1.0.0
+  dunya: ^1.1.0
 ```
 
 ## Quick start
@@ -40,13 +40,18 @@ final kuwait = CountryRepository.findByAlpha2('KW');
 final usa = CountryRepository.findByAlpha3('USA');
 final india = CountryRepository.findByDialCode('+91');
 
+// Shared calling codes return the main country; findAllByDialCode lists all
+CountryRepository.findByDialCode('+1');     // United States
+CountryRepository.findAllByDialCode('+44'); // GB, GG, IM, JE
+
 // Search
 final results = CountrySearch.search(countries, 'united');
 
 // Controller (streams + debounce)
 final controller = CountryPickerController();
 controller.locale = 'ar'; // enable localized search
-controller.results.listen((list) => print(list.length));
+print(controller.currentResults.length); // 250, before any search
+controller.results.listen((list) => print(list.length)); // emits on changes
 controller.search('united');
 controller.dispose();
 ```

@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.1.0] - 2026-09-24
+
+Requires `dunya` 1.1.0, which fixes the dial codes for NANP and `+7` countries and adds the missing phone metadata.
+
+### Fixed
+- **`DunyaDialCodeField`:**
+  - The `theme` parameter was ignored.
+  - `dropdown` mode did nothing. It now opens a bottom sheet.
+  - Validation didn't re-run when the country changed.
+  - The digit limit counted spaces and dashes, which cut off formatted input.
+- **`DunyaDialCodeFormField`:**
+  - A number already in the controller counted as empty until edited.
+  - Swapping the controller left the listener on the old one.
+  - Errors now color the field border.
+- **`DunyaCountryPicker`:** the `theme` parameter was ignored. It now also reaches Cupertino dialogs and dropdown overlays. The `codeAndArrow` trigger showed the country name.
+- **Country list:**
+  - An active search reset when the parent rebuilt.
+  - Favorites styling was applied to search results.
+  - The A-Z bar jumped into the favorites, landed rows too far down (it ignored separators), overflowed in short lists, and showed English letters next to translated names.
+- **Bottom sheets** can now be dragged to resize, as documented.
+- **Dropdowns** close when another route is pushed instead of floating above it.
+- **Screen readers** hear each country once. The label no longer repeats the flag and name or appends a hardcoded English ", selected".
+- **Regional translations** (e.g. `pt_BR`) are used when registered. Before, only the language code was looked up.
+
+### Added
+- `DunyaDialCodeField`: `onChanged` (fires with or without validation), `errorText`, `focusNode`, `textInputAction` and `autofillHints`. `DunyaDialCodeFormField` passes these through too.
+- `DunyaPickerTheme`: `fieldBorderColor`, `fieldBackgroundColor`, `fieldTextStyle`, `fieldHintStyle`, `fieldHeight` and `errorColor` for the dial code field. The defaults match the previous look.
+
 ## [1.0.1] - 2026-06-26
 
 ### Fixed
