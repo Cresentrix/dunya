@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/dunya_picker_theme.dart';
 import '../shared/country_list_view.dart';
+import '../../utils/picker_theme_scope.dart';
 
 /// Material dropdown overlay anchored to a trigger widget.
 ///
@@ -77,48 +78,52 @@ class _DropdownPresentationState extends State<DropdownPresentation>
     _scrollPosition?.addListener(_onScroll);
 
     _overlayEntry = OverlayEntry(
-      builder: (overlayContext) {
-        return Stack(
-          children: [
-            // Tap barrier — only catches taps, not drags/scrolls
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTapDown: (_) => _removeOverlay(),
+      builder: (overlayContext) => withPickerTheme(
+        overlayContext,
+        theme,
+        Builder(builder: (overlayContext) {
+          return Stack(
+            children: [
+              // Tap barrier — only catches taps, not drags/scrolls
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTapDown: (_) => _removeOverlay(),
+                ),
               ),
-            ),
-            // Dropdown content
-            CompositedTransformFollower(
-              link: _layerLink,
-              offset: Offset(0, yOffset),
-              child: Material(
-                elevation: 8,
-                borderRadius: theme.resolveDropdownRadius(),
-                clipBehavior: Clip.antiAlias,
-                color: theme.resolveSurfaceColor(context),
-                child: SizedBox(
-                  width: size.width,
-                  height: maxHeight,
-                  child: CountryListView(
-                    countries: widget.countries,
-                    selectedCountry: widget.selectedCountry,
-                    onSelected: (country) {
-                      _removeOverlay();
-                      widget.onSelected(country);
-                    },
-                    searchHint: widget.searchHint,
-                    itemBuilder: widget.itemBuilder,
-                    emptyBuilder: widget.emptyBuilder,
-                    searchAutofocus: widget.searchAutofocus,
-                    favorites: widget.favorites,
-                    noResultsText: widget.noResultsText,
+              // Dropdown content
+              CompositedTransformFollower(
+                link: _layerLink,
+                offset: Offset(0, yOffset),
+                child: Material(
+                  elevation: 8,
+                  borderRadius: theme.resolveDropdownRadius(),
+                  clipBehavior: Clip.antiAlias,
+                  color: theme.resolveSurfaceColor(context),
+                  child: SizedBox(
+                    width: size.width,
+                    height: maxHeight,
+                    child: CountryListView(
+                      countries: widget.countries,
+                      selectedCountry: widget.selectedCountry,
+                      onSelected: (country) {
+                        _removeOverlay();
+                        widget.onSelected(country);
+                      },
+                      searchHint: widget.searchHint,
+                      itemBuilder: widget.itemBuilder,
+                      emptyBuilder: widget.emptyBuilder,
+                      searchAutofocus: widget.searchAutofocus,
+                      favorites: widget.favorites,
+                      noResultsText: widget.noResultsText,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        }),
+      ),
     );
 
     Overlay.of(context).insert(_overlayEntry!);
@@ -138,6 +143,19 @@ class _DropdownPresentationState extends State<DropdownPresentation>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Close when another route is pushed on top; the overlay lives in the
+    // Navigator's overlay and would otherwise float above the new page.
+    final isCurrent = ModalRoute.of(context)?.isCurrent ?? true;
+    if (_overlayEntry != null && !isCurrent) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _removeOverlay();
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _scrollPosition?.removeListener(_onScroll);
     _scrollPosition = null;
@@ -150,7 +168,7 @@ class _DropdownPresentationState extends State<DropdownPresentation>
   Widget build(BuildContext context) {
     final theme = DunyaPickerTheme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = Localizations.localeOf(context).toString();
     final displayName = widget.selectedCountry != null
         ? (CountryLocalizations.nameOf(
                 widget.selectedCountry!.alpha2, locale) ??
