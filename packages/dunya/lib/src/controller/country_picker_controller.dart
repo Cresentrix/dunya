@@ -12,9 +12,10 @@ import '../search/country_search.dart';
 /// Call [dispose] when the controller is no longer needed.
 class CountryPickerController {
   /// Creates a controller pre-loaded with all countries.
-  CountryPickerController() {
-    _resultsController.add(CountryRepository.all);
-  }
+  ///
+  /// [results] only emits on changes; read [currentResults] for the
+  /// initial list (e.g. as `StreamBuilder.initialData`).
+  CountryPickerController();
 
   final _resultsController = StreamController<List<Country>>.broadcast();
   final _selectedController = StreamController<Country?>.broadcast();
@@ -24,8 +25,9 @@ class CountryPickerController {
   String? _locale;
   Timer? _debounceTimer;
   String _lastQuery = '';
+  List<Country> _currentResults = CountryRepository.all;
 
-  /// Stream of filtered/searched country lists.
+  /// Stream of filtered/searched country lists, emitted on each change.
   Stream<List<Country>> get results => _resultsController.stream;
 
   /// Stream of selected country changes.
@@ -33,6 +35,9 @@ class CountryPickerController {
 
   /// The full unfiltered country list.
   List<Country> get allCountries => CountryRepository.all;
+
+  /// The latest search results, available before any stream event.
+  List<Country> get currentResults => _currentResults;
 
   /// The currently selected country, or `null`.
   Country? get currentSelection => _selected;
@@ -46,8 +51,7 @@ class CountryPickerController {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 150), () {
       final source = _filteredByRegion();
-      final matched = CountrySearch.search(source, query, locale: _locale);
-      _resultsController.add(matched);
+      _emit(CountrySearch.search(source, query, locale: _locale));
     });
   }
 
@@ -62,7 +66,9 @@ class CountryPickerController {
     _selected = null;
     _selectedController.add(null);
     _lastQuery = '';
-    _resultsController.add(_filteredByRegion());
+    // Cancel a pending search so it can't overwrite the cleared results.
+    _debounceTimer?.cancel();
+    _emit(_filteredByRegion());
   }
 
   /// Filters results to countries in [region]. Pass `null` to clear.
@@ -76,6 +82,11 @@ class CountryPickerController {
     _debounceTimer?.cancel();
     _resultsController.close();
     _selectedController.close();
+  }
+
+  void _emit(List<Country> results) {
+    _currentResults = results;
+    _resultsController.add(results);
   }
 
   List<Country> _filteredByRegion() {
