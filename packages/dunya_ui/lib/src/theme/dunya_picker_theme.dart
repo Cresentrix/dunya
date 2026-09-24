@@ -97,6 +97,26 @@ class DunyaPickerTheme extends ThemeExtension<DunyaPickerTheme> {
   /// Accent color for Cupertino action buttons (cancel, checkmark).
   final Color? cupertinoActionColor;
 
+  // ── Dial code field ──
+
+  /// Border color of [DunyaDialCodeField] and its divider.
+  final Color? fieldBorderColor;
+
+  /// Fill color of [DunyaDialCodeField]. Transparent when `null`.
+  final Color? fieldBackgroundColor;
+
+  /// Text style of the phone number input and the dial code.
+  final TextStyle? fieldTextStyle;
+
+  /// Hint style of the phone number input.
+  final TextStyle? fieldHintStyle;
+
+  /// Height of [DunyaDialCodeField]. Defaults to [itemHeight].
+  final double? fieldHeight;
+
+  /// Color of the field border and message when it has an error.
+  final Color? errorColor;
+
   const DunyaPickerTheme({
     this.surfaceColor,
     this.barrierColor,
@@ -119,6 +139,12 @@ class DunyaPickerTheme extends ThemeExtension<DunyaPickerTheme> {
     this.showHandle,
     this.cupertinoSeparatorColor,
     this.cupertinoActionColor,
+    this.fieldBorderColor,
+    this.fieldBackgroundColor,
+    this.fieldTextStyle,
+    this.fieldHintStyle,
+    this.fieldHeight,
+    this.errorColor,
   });
 
   /// Retrieves the nearest [DunyaPickerTheme] from the widget tree,
@@ -196,6 +222,31 @@ class DunyaPickerTheme extends ThemeExtension<DunyaPickerTheme> {
   Color resolveCupertinoActionColor() =>
       cupertinoActionColor ?? CupertinoColors.systemBlue;
 
+  Color resolveFieldBorderColor(BuildContext context) =>
+      fieldBorderColor ??
+      (Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFF2C2C2E)
+          : const Color(0xFFE5E5EA));
+
+  Color resolveFieldBackgroundColor() =>
+      fieldBackgroundColor ?? const Color(0x00000000);
+
+  TextStyle resolveFieldTextStyle(BuildContext context) => TextStyle(
+        fontSize: 16,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFFEBEBF5)
+            : const Color(0xFF1C1C1E),
+      ).merge(fieldTextStyle);
+
+  TextStyle resolveFieldHintStyle() =>
+      const TextStyle(fontSize: 16, color: Color(0xFF8E8E93))
+          .merge(fieldHintStyle);
+
+  double resolveFieldHeight() => fieldHeight ?? resolveItemHeight();
+
+  Color resolveErrorColor(BuildContext context) =>
+      errorColor ?? Theme.of(context).colorScheme.error;
+
   @override
   DunyaPickerTheme copyWith({
     Color? surfaceColor,
@@ -219,6 +270,12 @@ class DunyaPickerTheme extends ThemeExtension<DunyaPickerTheme> {
     bool? showHandle,
     Color? cupertinoSeparatorColor,
     Color? cupertinoActionColor,
+    Color? fieldBorderColor,
+    Color? fieldBackgroundColor,
+    TextStyle? fieldTextStyle,
+    TextStyle? fieldHintStyle,
+    double? fieldHeight,
+    Color? errorColor,
   }) {
     return DunyaPickerTheme(
       surfaceColor: surfaceColor ?? this.surfaceColor,
@@ -244,6 +301,12 @@ class DunyaPickerTheme extends ThemeExtension<DunyaPickerTheme> {
       cupertinoSeparatorColor:
           cupertinoSeparatorColor ?? this.cupertinoSeparatorColor,
       cupertinoActionColor: cupertinoActionColor ?? this.cupertinoActionColor,
+      fieldBorderColor: fieldBorderColor ?? this.fieldBorderColor,
+      fieldBackgroundColor: fieldBackgroundColor ?? this.fieldBackgroundColor,
+      fieldTextStyle: fieldTextStyle ?? this.fieldTextStyle,
+      fieldHintStyle: fieldHintStyle ?? this.fieldHintStyle,
+      fieldHeight: fieldHeight ?? this.fieldHeight,
+      errorColor: errorColor ?? this.errorColor,
     );
   }
 
@@ -280,6 +343,13 @@ class DunyaPickerTheme extends ThemeExtension<DunyaPickerTheme> {
           Color.lerp(cupertinoSeparatorColor, other.cupertinoSeparatorColor, t),
       cupertinoActionColor:
           Color.lerp(cupertinoActionColor, other.cupertinoActionColor, t),
+      fieldBorderColor: Color.lerp(fieldBorderColor, other.fieldBorderColor, t),
+      fieldBackgroundColor:
+          Color.lerp(fieldBackgroundColor, other.fieldBackgroundColor, t),
+      fieldTextStyle: TextStyle.lerp(fieldTextStyle, other.fieldTextStyle, t),
+      fieldHintStyle: TextStyle.lerp(fieldHintStyle, other.fieldHintStyle, t),
+      fieldHeight: lerpDouble(fieldHeight, other.fieldHeight, t),
+      errorColor: Color.lerp(errorColor, other.errorColor, t),
     );
   }
 }
