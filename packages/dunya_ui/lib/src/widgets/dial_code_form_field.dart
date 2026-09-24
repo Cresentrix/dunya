@@ -1,6 +1,7 @@
 import 'package:dunya/dunya.dart';
 import 'package:flutter/material.dart';
 
+import '../theme/dunya_picker_theme.dart';
 import 'dial_code_field.dart';
 import 'dunya_country_picker.dart';
 
@@ -77,6 +78,22 @@ class DunyaDialCodeFormField extends StatefulWidget {
   /// Called when the user presses done/submit on the keyboard.
   final VoidCallback? onFieldSubmitted;
 
+  /// Fires with the raw phone number input on every change.
+  final ValueChanged<String>? onChanged;
+
+  /// Optional theme override.
+  final DunyaPickerTheme? theme;
+
+  /// Optional focus node for the phone number input.
+  final FocusNode? focusNode;
+
+  /// The keyboard action button, e.g. [TextInputAction.next].
+  final TextInputAction? textInputAction;
+
+  /// Autofill hints for the phone number input.
+  final Iterable<String>? autofillHints;
+
+  /// Creates a dial code form field.
   const DunyaDialCodeFormField({
     required this.onCountryChanged,
     super.key,
@@ -97,6 +114,11 @@ class DunyaDialCodeFormField extends StatefulWidget {
     this.onSaved,
     this.autovalidateMode = AutovalidateMode.disabled,
     this.onFieldSubmitted,
+    this.onChanged,
+    this.theme,
+    this.focusNode,
+    this.textInputAction,
+    this.autofillHints = const [AutofillHints.telephoneNumberNational],
   });
 
   @override
@@ -122,10 +144,27 @@ class _DunyaDialCodeFormFieldState extends State<DunyaDialCodeFormField> {
   @override
   void didUpdateWidget(DunyaDialCodeFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      // Move the listener to whichever controller is now in use.
+      (oldWidget.controller ?? _internalController)
+          ?.removeListener(_onInputChanged);
+      if (widget.controller == null) {
+        _internalController ??= TextEditingController(
+          text: oldWidget.controller?.text,
+        );
+      } else {
+        _internalController?.dispose();
+        _internalController = null;
+      }
+      _effectiveController.addListener(_onInputChanged);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _updateFormValue();
+      });
+    }
     if (oldWidget.selectedCountry != widget.selectedCountry) {
       // Country changed — re-parse and update form field
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _updateFormValue();
+        if (mounted) _updateFormValue();
       });
     }
   }
@@ -134,16 +173,15 @@ class _DunyaDialCodeFormFieldState extends State<DunyaDialCodeFormField> {
     _updateFormValue();
   }
 
-  void _updateFormValue() {
+  PhoneNumber? _parse() {
     final country = widget.selectedCountry;
     final text = _effectiveController.text;
+    if (country == null || text.isEmpty) return null;
+    return PhoneNumber.parse(country.dialCode, text, country.alpha2);
+  }
 
-    PhoneNumber? phone;
-    if (country != null && text.isNotEmpty) {
-      phone = PhoneNumber.parse(country.dialCode, text, country.alpha2);
-    }
-
-    _formFieldKey.currentState?.didChange(phone);
+  void _updateFormValue() {
+    _formFieldKey.currentState?.didChange(_parse());
   }
 
   @override
@@ -157,44 +195,35 @@ class _DunyaDialCodeFormFieldState extends State<DunyaDialCodeFormField> {
   Widget build(BuildContext context) {
     return FormField<PhoneNumber>(
       key: _formFieldKey,
+      // Text already in the controller counts from the start, so a
+      // pre-filled number passes validation without being edited.
+      initialValue: _parse(),
       validator: widget.validator,
       onSaved: widget.onSaved,
       autovalidateMode: widget.autovalidateMode,
       builder: (FormFieldState<PhoneNumber> field) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DunyaDialCodeField(
-              selectedCountry: widget.selectedCountry,
-              onCountryChanged: widget.onCountryChanged,
-              controller: _effectiveController,
-              pickerMode: widget.pickerMode,
-              numberHint: widget.numberHint,
-              triggerStyle: widget.triggerStyle,
-              triggerBuilder: widget.triggerBuilder,
-              selectionLabel: widget.selectionLabel,
-              searchAutofocus: widget.searchAutofocus,
-              adaptive: widget.adaptive,
-              glassEffect: widget.glassEffect,
-              enableValidation: true,
-              onFieldSubmitted: widget.onFieldSubmitted,
-              favorites: widget.favorites,
-              exclude: widget.exclude,
-              readOnly: widget.readOnly,
-            ),
-            if (field.hasError)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(top: 6, start: 2),
-                child: Text(
-                  field.errorText!,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-              ),
-          ],
+        return DunyaDialCodeField(
+          selectedCountry: widget.selectedCountry,
+          onCountryChanged: widget.onCountryChanged,
+          controller: _effectiveController,
+          pickerMode: widget.pickerMode,
+          theme: widget.theme,
+          numberHint: widget.numberHint,
+          triggerStyle: widget.triggerStyle,
+          triggerBuilder: widget.triggerBuilder,
+          selectionLabel: widget.selectionLabel,
+          searchAutofocus: widget.searchAutofocus,
+          adaptive: widget.adaptive,
+          glassEffect: widget.glassEffect,
+          onChanged: widget.onChanged,
+          errorText: field.errorText,
+          onFieldSubmitted: widget.onFieldSubmitted,
+          focusNode: widget.focusNode,
+          textInputAction: widget.textInputAction,
+          autofillHints: widget.autofillHints,
+          favorites: widget.favorites,
+          exclude: widget.exclude,
+          readOnly: widget.readOnly,
         );
       },
     );

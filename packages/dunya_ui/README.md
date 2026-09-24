@@ -30,7 +30,7 @@ Customizable Flutter country picker. Bottom sheet, dialog, dropdown - one theme 
 
 ```yaml
 dependencies:
-  dunya_ui: ^1.0.0
+  dunya_ui: ^1.1.0
 ```
 
 ## Quick start
@@ -65,10 +65,17 @@ DunyaDialCodeField(
   selectedCountry: selected,
   onCountryChanged: (country) => setState(() => selected = country),
   controller: phoneController,
+  onChanged: (text) => print(text),
   enableValidation: true,
-  onValidationChanged: (result) => print(result.isValid),
+  onValidationChanged: (result) => setState(() => _valid = result.isValid),
+  errorText: _valid ? null : 'Invalid phone number',
+  textInputAction: TextInputAction.next,
 )
 ```
+
+The field supports `bottomSheet` and `dialog` modes. `dropdown` needs a full-width trigger, so the field opens a bottom sheet instead.
+
+Build the E.164 number with `PhoneNumber.parse(country.dialCode, text, country.alpha2).e164`.
 
 ## Form integration
 
@@ -105,7 +112,7 @@ phone.isValid            // true
 DunyaCountryPicker(
   countries: CountryRepository.all,
   favorites: const ['KW', 'US', 'GB'], // pinned to top
-  exclude: const ['KP', 'IR'],         // hidden from list
+  exclude: const ['AQ', 'BV'],         // hidden from list
   onSelected: ...,
 )
 ```
@@ -163,6 +170,13 @@ MaterialApp(
         searchBarRadius: BorderRadius.circular(12),
         showDividers: true,
         showHandle: true,
+        // Dial code field
+        fieldBorderColor: Color(0xFFE5E5EA),
+        fieldBackgroundColor: Colors.white,
+        fieldTextStyle: TextStyle(fontSize: 16),
+        fieldHintStyle: TextStyle(color: Color(0xFF8E8E93)),
+        fieldHeight: 52,
+        errorColor: Color(0xFFD32F2F),
         // Cupertino
         cupertinoSeparatorColor: CupertinoColors.separator,
         cupertinoActionColor: CupertinoColors.systemBlue,

@@ -2,10 +2,10 @@ name: dunya_ui
 description: >-
   Flutter country picker: bottom sheet, dialog & dropdown. Material + Cupertino adaptive,
   phone input, 13 locales, A-Z sidebar, favorites, Form support.
-version: 1.0.1
-homepage: https://github.com/Ahsan-Solutions/dunya
-repository: https://github.com/Ahsan-Solutions/dunya
-issue_tracker: https://github.com/Ahsan-Solutions/dunya/issues
+version: 1.1.0
+homepage: https://github.com/Cresentrix/dunya
+repository: https://github.com/Cresentrix/dunya
+issue_tracker: https://github.com/Cresentrix/dunya/issues
 documentation: https://pub.dev/documentation/dunya_ui/latest/
 topics: [country, picker, flag, material, cupertino]
 environment:
@@ -20,7 +20,7 @@ platforms:
   linux:
 dependencies:
   cupertino_icons: ^1.0.8
-  dunya: ^1.0.1
+  dunya: ^1.1.0
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.0

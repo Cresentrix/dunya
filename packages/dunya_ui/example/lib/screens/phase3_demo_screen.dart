@@ -182,14 +182,14 @@ class _Phase3DemoScreenState extends State<Phase3DemoScreen> {
           const _SectionTitle('Exclude Countries'),
           const SizedBox(height: 4),
           const _Desc(
-            'KP (North Korea) and IR (Iran) excluded from the list.',
+            'AQ (Antarctica) and BV (Bouvet Island) excluded from the list.',
           ),
           const SizedBox(height: 12),
           DunyaCountryPicker(
             countries: CountryRepository.all,
             selectedCountry: _excludeCountry,
             onSelected: (c) => setState(() => _excludeCountry = c),
-            exclude: const ['KP', 'IR'],
+            exclude: const ['AQ', 'BV'],
           ),
           if (_excludeCountry != null) _selectedText(_excludeCountry!),
           const SizedBox(height: 32),

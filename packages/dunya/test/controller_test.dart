@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:dunya/dunya.dart';
 
 void main() {
@@ -24,20 +24,29 @@ void main() {
       expect(controller.currentSelection, isNull);
     });
 
-    test('results stream emits all countries on creation', () async {
-      // Subscribe first, then create controller so we catch the sync add
-      final completer = Completer<List<Country>>();
-      final ctrl = CountryPickerController();
-      // The initial add is synchronous in the constructor, so for a
-      // broadcast stream we need to trigger a new emission.
-      ctrl.results.listen((data) {
-        if (!completer.isCompleted) completer.complete(data);
-      });
-      // clear() re-emits the full list
-      ctrl.clear();
-      final result = await completer.future;
-      expect(result.length, 250);
-      ctrl.dispose();
+    test('currentResults holds all countries on creation', () {
+      expect(controller.currentResults.length, 250);
+    });
+
+    test('currentResults tracks the latest search', () async {
+      final done = controller.results.first;
+      controller.search('Kuwait');
+      await done;
+      expect(controller.currentResults.map((c) => c.alpha2), ['KW']);
+    });
+
+    test('clear cancels a pending search', () async {
+      final events = <List<Country>>[];
+      final sub = controller.results.listen(events.add);
+
+      controller.search('Kuwait');
+      controller.clear();
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+
+      expect(events.length, 1);
+      expect(events.single.length, 250);
+      expect(controller.currentResults.length, 250);
+      await sub.cancel();
     });
 
     test('select updates currentSelection', () {

@@ -50,6 +50,7 @@ class BottomSheetPresentation {
                     _buildHeader(context, title),
                     Expanded(
                       child: CountryListView(
+                        scrollController: scrollController,
                         countries: countries,
                         selectedCountry: selectedCountry,
                         onSelected: (country) =>

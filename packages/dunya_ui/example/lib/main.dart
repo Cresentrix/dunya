@@ -107,7 +107,7 @@ class _CountryPickerDemoState extends State<CountryPickerDemo> {
           content: Text(
             'Submitted: ${_nameController.text}, '
             '${_selectedCountry!.name}, '
-            '+${_phoneCountry?.dialCode ?? ''} ${_phoneController.text}',
+            '${_phoneCountry?.dialCode ?? ''} ${_phoneController.text}',
           ),
           backgroundColor: Colors.green,
         ),
@@ -211,16 +211,8 @@ class _CountryPickerDemoState extends State<CountryPickerDemo> {
                     }
                   });
                 },
+                errorText: _submitted ? _phoneError : null,
               ),
-              if (_submitted && _phoneError != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8, left: 12),
-                  child: Text(
-                    _phoneError!,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.error),
-                  ),
-                ),
 
               const SizedBox(height: 32),
 

@@ -2,16 +2,14 @@ name: dunya
 description: >-
   Pure-Dart country data & phone validation. 250 countries, ranked search,
   E.164 parsing, 13-locale translations. Powers dunya_ui. Zero Flutter dependency.
-version: 1.0.1
-homepage: https://github.com/Ahsan-Solutions/dunya
-repository: https://github.com/Ahsan-Solutions/dunya
-issue_tracker: https://github.com/Ahsan-Solutions/dunya/issues
+version: 1.1.0
+homepage: https://github.com/Cresentrix/dunya
+repository: https://github.com/Cresentrix/dunya
+issue_tracker: https://github.com/Cresentrix/dunya/issues
 documentation: https://pub.dev/documentation/dunya/latest/
 topics: [country, picker, iso-3166, phone, internationalization]
 environment:
   sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.10.0"
 dev_dependencies:
-  flutter_lints: ^4.0.0
-  flutter_test:
-    sdk: flutter
+  lints: ^4.0.0
+  test: ^1.24.0
