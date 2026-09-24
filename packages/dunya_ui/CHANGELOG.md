@@ -10,6 +10,7 @@ Requires `dunya` 1.1.0, which fixes the dial codes for NANP and `+7` countries a
   - `dropdown` mode did nothing. It now opens a bottom sheet.
   - Validation didn't re-run when the country changed.
   - The digit limit counted spaces and dashes, which cut off formatted input.
+  - A pasted number with the country's dial code (`+965 5012 3456`, `0096550123456`) kept the code and lost its last digits. The code is now removed.
 - **`DunyaDialCodeFormField`:**
   - A number already in the controller counted as empty until edited.
   - Swapping the controller left the listener on the old one.
@@ -27,6 +28,9 @@ Requires `dunya` 1.1.0, which fixes the dial codes for NANP and `+7` countries a
 ### Added
 - `DunyaDialCodeField`: `onChanged` (fires with or without validation), `errorText`, `focusNode`, `textInputAction` and `autofillHints`. `DunyaDialCodeFormField` passes these through too.
 - `DunyaPickerTheme`: `fieldBorderColor`, `fieldBackgroundColor`, `fieldTextStyle`, `fieldHintStyle`, `fieldHeight` and `errorColor` for the dial code field. The defaults match the previous look.
+
+### Changed
+- The README and example use Antarctica and Bouvet Island in the `exclude` example instead of two inhabited countries.
 
 ## [1.0.1] - 2026-06-26
 

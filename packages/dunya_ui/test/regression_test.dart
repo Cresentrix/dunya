@@ -113,6 +113,87 @@ void main() {
       expect(controller.text, '5012 3456');
     });
 
+    testWidgets('digit limit trims a pasted number', (tester) async {
+      final controller = TextEditingController();
+      await tester.pumpWidget(_wrap(DunyaDialCodeField(
+        selectedCountry: _kw,
+        onCountryChanged: (_) {},
+        controller: controller,
+      )));
+
+      await tester.enterText(find.byType(TextField), '5012 3456 789');
+      expect(controller.text, '5012 3456');
+    });
+
+    group('pasting a number with the dial code', () {
+      Future<TextEditingController> paste(
+        WidgetTester tester,
+        Country country,
+        String text,
+      ) async {
+        final controller = TextEditingController();
+        await tester.pumpWidget(_wrap(DunyaDialCodeField(
+          selectedCountry: country,
+          onCountryChanged: (_) {},
+          controller: controller,
+        )));
+        await tester.enterText(find.byType(TextField), text);
+        return controller;
+      }
+
+      testWidgets('removes a "+" code', (tester) async {
+        final c = await paste(tester, _kw, '+965 5012 3456');
+        expect(c.text, '5012 3456');
+      });
+
+      testWidgets('removes a "00" code', (tester) async {
+        final c = await paste(tester, _kw, '0096550123456');
+        expect(c.text, '50123456');
+      });
+
+      testWidgets('removes a bare code from a number too long to be national',
+          (tester) async {
+        final c = await paste(tester, _kw, '965 5012 3456');
+        expect(c.text, '5012 3456');
+      });
+
+      testWidgets('keeps a national number starting with the code digits',
+          (tester) async {
+        final c = await paste(tester, _kw, '96512345');
+        expect(c.text, '96512345');
+      });
+
+      testWidgets('keeps the formatting after a NANP code', (tester) async {
+        final us = CountryRepository.findByAlpha2('US')!;
+        final c = await paste(tester, us, '+1 (202) 555-0123');
+        expect(c.text, '(202) 555-0123');
+      });
+
+      testWidgets('leaves another country code alone', (tester) async {
+        // Not Kuwait's code, so it's only filtered and cut to 8 digits.
+        final c = await paste(tester, _kw, '+44 7911 1234');
+        expect(c.text, '44 7911 12');
+      });
+    });
+
+    testWidgets('can delete after switching to a shorter country',
+        (tester) async {
+      // 10 digits fits the US but is two over the Kuwaiti limit, so one
+      // backspace still leaves too many digits.
+      final controller = TextEditingController(text: '2025550123');
+      Widget build(Country country) => _wrap(DunyaDialCodeField(
+            selectedCountry: country,
+            onCountryChanged: (_) {},
+            controller: controller,
+          ));
+
+      await tester.pumpWidget(build(CountryRepository.findByAlpha2('US')!));
+      await tester.pumpWidget(build(_kw));
+
+      await tester.enterText(find.byType(TextField), '202555012');
+      expect(controller.text, '202555012');
+    });
+
     testWidgets('dropdown mode opens the bottom sheet', (tester) async {
       await tester.pumpWidget(_wrap(DunyaDialCodeField(
         onCountryChanged: (_) {},
