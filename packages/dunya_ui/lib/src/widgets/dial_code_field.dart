@@ -163,10 +163,13 @@ class _DunyaDialCodeFieldState extends State<DunyaDialCodeField> {
     super.dispose();
   }
 
-  /// Builds input formatters: digit-only filter + per-country max length.
+  /// Builds input formatters: dial code removal on paste, digit-only
+  /// filter and per-country max length.
   List<TextInputFormatter> _buildInputFormatters() {
     final country = widget.selectedCountry;
     return [
+      // Runs first, while a pasted "+" is still there.
+      if (country != null) _PastedDialCodeFormatter(country),
       // Allow ASCII digits, Eastern Arabic (٠-٩), Extended Arabic (۰-۹),
       // and common formatting characters (spaces, dashes, parens, dots).
       FilteringTextInputFormatter.allow(
@@ -430,6 +433,68 @@ class _DunyaDialCodeFieldState extends State<DunyaDialCodeField> {
   }
 }
 
+/// Removes the selected country's dial code from a pasted number, so
+/// "+965 5012 3456" pasted into the Kuwait field becomes "5012 3456"
+/// instead of being cut to "965 5012".
+///
+/// Only multi-character inserts (paste, autofill) are changed. A code
+/// without "+" or "00" is only removed when the number is too long to be
+/// national and fits once it's gone, since a national number can start
+/// with the same digits.
+class _PastedDialCodeFormatter extends TextInputFormatter {
+  final String dialDigits;
+  final int maxDigits;
+
+  _PastedDialCodeFormatter(Country country)
+      : dialDigits = country.dialCode.replaceAll('+', ''),
+        maxDigits = PhoneValidator.maxLengthFor(country.alpha2);
+
+  static final _leadingFormatting = RegExp(r'^[\s\-\.]+');
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.length - oldValue.text.length < 2) return newValue;
+
+    var national = _afterDialCode(newValue.text, prefixed: true);
+    if (national == null &&
+        PhoneNumber.stripFormatting(newValue.text).length > maxDigits) {
+      national = _afterDialCode(newValue.text, prefixed: false);
+      if (national != null &&
+          PhoneNumber.stripFormatting(national).length > maxDigits) {
+        national = null;
+      }
+    }
+    if (national == null) return newValue;
+    return TextEditingValue(
+      text: national,
+      selection: TextSelection.collapsed(offset: national.length),
+    );
+  }
+
+  /// The text after a leading dial code, or `null` if it doesn't start
+  /// with one. With [prefixed], the code must follow "+" or "00".
+  String? _afterDialCode(String text, {required bool prefixed}) {
+    var rest = text.trimLeft();
+    if (prefixed) {
+      if (rest.startsWith('+')) {
+        rest = rest.substring(1);
+      } else if (rest.startsWith('00')) {
+        rest = rest.substring(2);
+      } else {
+        return null;
+      }
+      rest = rest.trimLeft();
+    }
+    if (!rest.startsWith(dialDigits)) return null;
+    return rest
+        .substring(dialDigits.length)
+        .replaceFirst(_leadingFormatting, '');
+  }
+}
+
 /// Caps the number of digits, ignoring spaces, dashes, parens and dots,
 /// so formatted input like "50 123 456" isn't cut off early.
 class _DigitLimitFormatter extends TextInputFormatter {
@@ -437,13 +502,34 @@ class _DigitLimitFormatter extends TextInputFormatter {
 
   _DigitLimitFormatter(this.maxDigits);
 
+  static final _formatting = RegExp(r'[\s\-\(\)\.]');
+
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
     final digits = PhoneNumber.stripFormatting(newValue.text).length;
-    return digits <= maxDigits ? newValue : oldValue;
+    if (digits <= maxDigits) return newValue;
+    // Text can already be over the limit after switching to a country
+    // with shorter numbers. Deleting from it must still work.
+    if (digits <= PhoneNumber.stripFormatting(oldValue.text).length) {
+      return newValue;
+    }
+    // Too many digits, e.g. a pasted number: keep the first maxDigits.
+    final text = newValue.text;
+    var count = 0;
+    var end = 0;
+    while (count < maxDigits) {
+      if (!_formatting.hasMatch(text[end])) count++;
+      end++;
+    }
+    final truncated = text.substring(0, end);
+    final offset = newValue.selection.extentOffset.clamp(0, truncated.length);
+    return TextEditingValue(
+      text: truncated,
+      selection: TextSelection.collapsed(offset: offset),
+    );
   }
 }
 
