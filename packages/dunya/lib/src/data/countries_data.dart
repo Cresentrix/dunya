@@ -1,5 +1,9 @@
-// AUTO-GENERATED from mledoze/countries (CC0)
-// Do not edit by hand.
+// Generated from mledoze/countries (CC0).
+//
+// `dialCode` is the ITU-T E.164 country calling code only. The source data
+// splits it into a root and area-code suffixes (e.g. US: "+1" + "201"), so
+// countries that share a calling code (NANP "+1", "+7", etc.) were
+// corrected by hand to the bare root.
 
 import '../models/country.dart';
 
@@ -45,7 +49,7 @@ const List<Country> kCountriesData = [
     numeric: 16,
     region: 'Oceania',
     subregion: 'Polynesia',
-    dialCode: '+1684',
+    dialCode: '+1',
     flagCode: 'as',
   ),
   Country(
@@ -78,7 +82,7 @@ const List<Country> kCountriesData = [
     numeric: 660,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1264',
+    dialCode: '+1',
     flagCode: 'ai',
   ),
   Country(
@@ -100,7 +104,7 @@ const List<Country> kCountriesData = [
     numeric: 28,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1268',
+    dialCode: '+1',
     flagCode: 'ag',
   ),
   Country(
@@ -177,7 +181,7 @@ const List<Country> kCountriesData = [
     numeric: 44,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1242',
+    dialCode: '+1',
     flagCode: 'bs',
   ),
   Country(
@@ -210,7 +214,7 @@ const List<Country> kCountriesData = [
     numeric: 52,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1246',
+    dialCode: '+1',
     flagCode: 'bb',
   ),
   Country(
@@ -265,7 +269,7 @@ const List<Country> kCountriesData = [
     numeric: 60,
     region: 'Americas',
     subregion: 'North America',
-    dialCode: '+1441',
+    dialCode: '+1',
     flagCode: 'bm',
   ),
   Country(
@@ -353,7 +357,7 @@ const List<Country> kCountriesData = [
     numeric: 92,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1284',
+    dialCode: '+1',
     flagCode: 'vg',
   ),
   Country(
@@ -430,7 +434,7 @@ const List<Country> kCountriesData = [
     numeric: 124,
     region: 'Americas',
     subregion: 'North America',
-    dialCode: '+1204',
+    dialCode: '+1',
     flagCode: 'ca',
   ),
   Country(
@@ -463,7 +467,7 @@ const List<Country> kCountriesData = [
     numeric: 136,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1345',
+    dialCode: '+1',
     flagCode: 'ky',
   ),
   Country(
@@ -683,7 +687,7 @@ const List<Country> kCountriesData = [
     numeric: 212,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1767',
+    dialCode: '+1',
     flagCode: 'dm',
   ),
   Country(
@@ -694,7 +698,7 @@ const List<Country> kCountriesData = [
     numeric: 214,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1809',
+    dialCode: '+1',
     flagCode: 'do',
   ),
   Country(
@@ -969,7 +973,7 @@ const List<Country> kCountriesData = [
     numeric: 308,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1473',
+    dialCode: '+1',
     flagCode: 'gd',
   ),
   Country(
@@ -991,7 +995,7 @@ const List<Country> kCountriesData = [
     numeric: 316,
     region: 'Oceania',
     subregion: 'Micronesia',
-    dialCode: '+1671',
+    dialCode: '+1',
     flagCode: 'gu',
   ),
   Country(
@@ -1222,7 +1226,7 @@ const List<Country> kCountriesData = [
     numeric: 388,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1876',
+    dialCode: '+1',
     flagCode: 'jm',
   ),
   Country(
@@ -1266,7 +1270,7 @@ const List<Country> kCountriesData = [
     numeric: 398,
     region: 'Asia',
     subregion: 'Central Asia',
-    dialCode: '+76',
+    dialCode: '+7',
     flagCode: 'kz',
   ),
   Country(
@@ -1629,7 +1633,7 @@ const List<Country> kCountriesData = [
     numeric: 500,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1664',
+    dialCode: '+1',
     flagCode: 'ms',
   ),
   Country(
@@ -1816,7 +1820,7 @@ const List<Country> kCountriesData = [
     numeric: 580,
     region: 'Oceania',
     subregion: 'Micronesia',
-    dialCode: '+1670',
+    dialCode: '+1',
     flagCode: 'mp',
   ),
   Country(
@@ -1970,7 +1974,7 @@ const List<Country> kCountriesData = [
     numeric: 630,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1787',
+    dialCode: '+1',
     flagCode: 'pr',
   ),
   Country(
@@ -2003,7 +2007,7 @@ const List<Country> kCountriesData = [
     numeric: 643,
     region: 'Europe',
     subregion: 'Eastern Europe',
-    dialCode: '+73',
+    dialCode: '+7',
     flagCode: 'ru',
   ),
   Country(
@@ -2058,7 +2062,7 @@ const List<Country> kCountriesData = [
     numeric: 659,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1869',
+    dialCode: '+1',
     flagCode: 'kn',
   ),
   Country(
@@ -2069,7 +2073,7 @@ const List<Country> kCountriesData = [
     numeric: 662,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1758',
+    dialCode: '+1',
     flagCode: 'lc',
   ),
   Country(
@@ -2102,7 +2106,7 @@ const List<Country> kCountriesData = [
     numeric: 670,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1784',
+    dialCode: '+1',
     flagCode: 'vc',
   ),
   Country(
@@ -2201,7 +2205,7 @@ const List<Country> kCountriesData = [
     numeric: 534,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1721',
+    dialCode: '+1',
     flagCode: 'sx',
   ),
   Country(
@@ -2344,7 +2348,7 @@ const List<Country> kCountriesData = [
     numeric: 744,
     region: 'Europe',
     subregion: 'Northern Europe',
-    dialCode: '+4779',
+    dialCode: '+47',
     flagCode: 'sj',
   ),
   Country(
@@ -2487,7 +2491,7 @@ const List<Country> kCountriesData = [
     numeric: 780,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1868',
+    dialCode: '+1',
     flagCode: 'tt',
   ),
   Country(
@@ -2520,7 +2524,7 @@ const List<Country> kCountriesData = [
     numeric: 796,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1649',
+    dialCode: '+1',
     flagCode: 'tc',
   ),
   Country(
@@ -2597,7 +2601,7 @@ const List<Country> kCountriesData = [
     numeric: 840,
     region: 'Americas',
     subregion: 'North America',
-    dialCode: '+1201',
+    dialCode: '+1',
     flagCode: 'us',
   ),
   Country(
@@ -2608,7 +2612,7 @@ const List<Country> kCountriesData = [
     numeric: 581,
     region: 'Americas',
     subregion: 'North America',
-    dialCode: '+268',
+    dialCode: '+1',
     flagCode: 'um',
   ),
   Country(
@@ -2619,7 +2623,7 @@ const List<Country> kCountriesData = [
     numeric: 850,
     region: 'Americas',
     subregion: 'Caribbean',
-    dialCode: '+1340',
+    dialCode: '+1',
     flagCode: 'vi',
   ),
   Country(
@@ -2663,7 +2667,7 @@ const List<Country> kCountriesData = [
     numeric: 336,
     region: 'Europe',
     subregion: 'Southern Europe',
-    dialCode: '+3906698',
+    dialCode: '+39',
     flagCode: 'va',
   ),
   Country(
@@ -2707,7 +2711,7 @@ const List<Country> kCountriesData = [
     numeric: 732,
     region: 'Africa',
     subregion: 'Northern Africa',
-    dialCode: '+2125288',
+    dialCode: '+212',
     flagCode: 'eh',
   ),
   Country(
@@ -2751,7 +2755,7 @@ const List<Country> kCountriesData = [
     numeric: 248,
     region: 'Europe',
     subregion: 'Northern Europe',
-    dialCode: '+35818',
+    dialCode: '+358',
     flagCode: 'ax',
   ),
 ];

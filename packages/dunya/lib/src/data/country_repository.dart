@@ -27,13 +27,54 @@ class CountryRepository {
     return null;
   }
 
+  /// The main country for each calling code shared by several countries,
+  /// e.g. `+1` → US rather than American Samoa (first alphabetically).
+  static const Map<String, String> _primaryByDialCode = {
+    '+1': 'US',
+    '+7': 'RU',
+    '+39': 'IT',
+    '+44': 'GB',
+    '+47': 'NO',
+    '+61': 'AU',
+    '+64': 'NZ',
+    '+212': 'MA',
+    '+262': 'RE',
+    '+358': 'FI',
+    '+500': 'FK',
+    '+590': 'GP',
+    '+599': 'CW',
+  };
+
   /// Finds a country by dial code (e.g. `'+965'` or `'965'`).
-  /// Returns the first match if multiple countries share a dial code.
+  ///
+  /// When several countries share a calling code, returns the main one
+  /// (`+1` → US, `+44` → GB, `+7` → RU). Use [findAllByDialCode] to get
+  /// every country for a code.
   static Country? findByDialCode(String dialCode) {
-    final code = dialCode.startsWith('+') ? dialCode : '+$dialCode';
+    final code = _normalizeDialCode(dialCode);
+    final primary = _primaryByDialCode[code];
+    if (primary != null) return findByAlpha2(primary);
     for (final c in all) {
       if (c.dialCode == code) return c;
     }
     return null;
+  }
+
+  /// Returns every country that uses [dialCode] (e.g. `'+1'` or `'1'`),
+  /// with the main country first. Empty when no country matches.
+  static List<Country> findAllByDialCode(String dialCode) {
+    final code = _normalizeDialCode(dialCode);
+    final primary = _primaryByDialCode[code];
+    final matches = all.where((c) => c.dialCode == code).toList();
+    if (primary != null) {
+      final index = matches.indexWhere((c) => c.alpha2 == primary);
+      if (index > 0) matches.insert(0, matches.removeAt(index));
+    }
+    return List.unmodifiable(matches);
+  }
+
+  static String _normalizeDialCode(String dialCode) {
+    final trimmed = dialCode.trim();
+    return trimmed.startsWith('+') ? trimmed : '+$trimmed';
   }
 }
