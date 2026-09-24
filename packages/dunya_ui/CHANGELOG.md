@@ -4,6 +4,16 @@
 
 Requires `dunya` 1.1.0, which fixes the dial codes for NANP and `+7` countries and adds the missing phone metadata.
 
+### Upgrading from 1.0.x
+No code changes are needed for normal use. Check these if they affect you:
+- **Dial codes changed for 32 countries** in `dunya` 1.1.0. See its changelog if you store dial codes.
+- **The `codeAndArrow` trigger** no longer shows the country name. Use `DunyaPickerTriggerStyle.all` to keep it.
+- **Screen reader labels** no longer end in `", selected"`. Update widget tests that match that text.
+- **`DunyaDialCodeField` with `pickerMode: dropdown`** now opens a bottom sheet instead of doing nothing.
+- **The A-Z bar** is hidden when country names are shown in a translated language.
+- **Autofill** is on by default in the phone field. Pass `autofillHints: null` to turn it off.
+- **Subclasses:** `DunyaDialCodeField` is now a `StatefulWidget`, and `DunyaPickerTheme.copyWith` has new parameters. Code that extends either needs updating.
+
 ### Fixed
 - **`DunyaDialCodeField`:**
   - The `theme` parameter was ignored.
