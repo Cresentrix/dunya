@@ -10,7 +10,7 @@ void main() {
     // App title renders
     expect(find.text('Dunya Example'), findsOneWidget);
     // Sections are visible
-    expect(find.text('Country Picker'), findsOneWidget);
-    expect(find.text('Phone Input'), findsOneWidget);
+    expect(find.text('Registration'), findsOneWidget);
+    expect(find.text('Phone Number'), findsOneWidget);
   });
 }
