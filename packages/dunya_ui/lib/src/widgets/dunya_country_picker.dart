@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/dunya_strings.dart';
 import '../theme/dunya_picker_theme.dart';
+import '../utils/picker_theme_scope.dart';
 import '../utils/platform_resolver.dart';
 import 'presentations/bottom_sheet_presentation.dart';
 import 'presentations/cupertino/cupertino_bottom_sheet_presentation.dart';
@@ -143,6 +144,16 @@ class DunyaCountryPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final content = Builder(builder: _buildContent);
+    final override = theme;
+    return override == null
+        ? content
+        : withPickerTheme(context, override, content);
+  }
+
+  /// [context] sits below the [theme] override, so the picker it opens
+  /// uses that theme too.
+  Widget _buildContent(BuildContext context) {
     final cupertino = PlatformResolver.useCupertino(adaptive);
     final filtered = _filteredCountries;
     final s = _resolveStrings(context);
@@ -194,8 +205,7 @@ class DunyaCountryPicker extends StatelessWidget {
 
     final openPicker = readOnly ? null : () => _openPicker(context);
     final trigger = triggerBuilder != null
-        ? triggerBuilder!(
-            context, selectedCountry, openPicker ?? () {})
+        ? triggerBuilder!(context, selectedCountry, openPicker ?? () {})
         : _TriggerButton(
             selectedCountry: selectedCountry,
             triggerStyle: triggerStyle,
@@ -382,7 +392,7 @@ class _TriggerButton extends StatelessWidget {
     DunyaPickerTheme theme,
     Color textColor,
   ) {
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = Localizations.localeOf(context).toString();
     final displayName =
         CountryLocalizations.nameOf(country.alpha2, locale) ?? country.name;
     final widgets = <Widget>[];
@@ -393,8 +403,7 @@ class _TriggerButton extends StatelessWidget {
         triggerStyle == DunyaPickerTriggerStyle.flagAndCode ||
         triggerStyle == DunyaPickerTriggerStyle.codeAndArrow ||
         triggerStyle == DunyaPickerTriggerStyle.all;
-    final showName = triggerStyle == DunyaPickerTriggerStyle.all ||
-        triggerStyle == DunyaPickerTriggerStyle.codeAndArrow;
+    final showName = triggerStyle == DunyaPickerTriggerStyle.all;
 
     if (showFlag) {
       widgets.add(FlagWidget(alpha2: country.alpha2, size: 24));
@@ -438,7 +447,7 @@ class _SelectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = Localizations.localeOf(context).toString();
     final displayName =
         CountryLocalizations.nameOf(country.alpha2, locale) ?? country.name;
     return Padding(

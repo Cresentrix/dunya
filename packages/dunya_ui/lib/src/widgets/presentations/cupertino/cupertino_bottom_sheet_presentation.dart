@@ -52,6 +52,7 @@ class CupertinoBottomSheetPresentation {
                   _buildHeader(context, theme, title),
                   Expanded(
                     child: CountryListView(
+                      scrollController: scrollController,
                       countries: countries,
                       selectedCountry: selectedCountry,
                       onSelected: (country) =>

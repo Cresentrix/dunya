@@ -47,7 +47,7 @@ class _CountryListTileState extends State<CountryListTile> {
     final theme = DunyaPickerTheme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = Localizations.localeOf(context).toString();
     final displayName = CountryLocalizations.nameOf(
           widget.country.alpha2,
           locale,
@@ -98,14 +98,17 @@ class _CountryListTileState extends State<CountryListTile> {
       ),
     );
 
-    final semanticsLabel = '$displayName, ${widget.country.dialCode}'
-        '${widget.isSelected ? ', selected' : ''}';
+    // `selected:` below already announces the state in the reader's
+    // language, so it isn't repeated in the label.
+    final semanticsLabel = '$displayName, ${widget.country.dialCode}';
 
     if (widget.useCupertino) {
       return Semantics(
         label: semanticsLabel,
         button: true,
         selected: widget.isSelected,
+        // Replace the children's labels instead of reading them again.
+        excludeSemantics: true,
         child: GestureDetector(
           onTap: widget.onTap,
           onTapDown: (_) => setState(() => _pressed = true),
@@ -120,6 +123,8 @@ class _CountryListTileState extends State<CountryListTile> {
       label: semanticsLabel,
       button: true,
       selected: widget.isSelected,
+      // Replace the children's labels instead of reading them again.
+      excludeSemantics: true,
       child: InkWell(
         onTap: widget.onTap,
         child: content,

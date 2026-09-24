@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/dunya_picker_theme.dart';
 import '../../shared/country_list_view.dart';
+import '../../../utils/picker_theme_scope.dart';
 
 /// iOS-style dropdown overlay presentation for the country picker.
 ///
@@ -79,94 +80,98 @@ class _CupertinoDropdownPresentationState
     _scrollPosition?.addListener(_onScroll);
 
     _overlayEntry = OverlayEntry(
-      builder: (overlayContext) {
-        final solidColor = theme.resolveSurfaceColor(context);
-        final radius = theme.resolveDropdownRadius();
+      builder: (overlayContext) => withPickerTheme(
+        overlayContext,
+        theme,
+        Builder(builder: (overlayContext) {
+          final solidColor = theme.resolveSurfaceColor(context);
+          final radius = theme.resolveDropdownRadius();
 
-        Widget dropdownContent = SizedBox(
-          width: size.width,
-          height: maxHeight,
-          child: CountryListView(
-            countries: widget.countries,
-            selectedCountry: widget.selectedCountry,
-            onSelected: (country) {
-              _removeOverlay();
-              widget.onSelected(country);
-            },
-            searchHint: widget.searchHint,
-            itemBuilder: widget.itemBuilder,
-            emptyBuilder: widget.emptyBuilder,
-            searchAutofocus: widget.searchAutofocus,
-            useCupertino: true,
-            favorites: widget.favorites,
-            noResultsText: widget.noResultsText,
-          ),
-        );
-
-        Widget dropdown;
-        if (widget.glassEffect) {
-          dropdown = ClipRRect(
-            borderRadius: radius,
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: solidColor.withValues(alpha: 0.8),
-                  borderRadius: radius,
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x26000000),
-                      blurRadius: 16,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: dropdownContent,
-              ),
+          Widget dropdownContent = SizedBox(
+            width: size.width,
+            height: maxHeight,
+            child: CountryListView(
+              countries: widget.countries,
+              selectedCountry: widget.selectedCountry,
+              onSelected: (country) {
+                _removeOverlay();
+                widget.onSelected(country);
+              },
+              searchHint: widget.searchHint,
+              itemBuilder: widget.itemBuilder,
+              emptyBuilder: widget.emptyBuilder,
+              searchAutofocus: widget.searchAutofocus,
+              useCupertino: true,
+              favorites: widget.favorites,
+              noResultsText: widget.noResultsText,
             ),
           );
-        } else {
-          dropdown = DecoratedBox(
-            decoration: BoxDecoration(
-              color: solidColor,
+
+          Widget dropdown;
+          if (widget.glassEffect) {
+            dropdown = ClipRRect(
               borderRadius: radius,
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x26000000),
-                  blurRadius: 16,
-                  offset: Offset(0, 4),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: solidColor.withValues(alpha: 0.8),
+                    borderRadius: radius,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x26000000),
+                        blurRadius: 16,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: dropdownContent,
+                ),
+              ),
+            );
+          } else {
+            dropdown = DecoratedBox(
+              decoration: BoxDecoration(
+                color: solidColor,
+                borderRadius: radius,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x26000000),
+                    blurRadius: 16,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: radius,
+                child: dropdownContent,
+              ),
+            );
+          }
+
+          return DefaultTextStyle.merge(
+            style: TextStyle(
+              decoration: TextDecoration.none,
+              color: isDark ? const Color(0xFFEBEBF5) : const Color(0xFF1C1C1E),
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTapDown: (_) => _removeOverlay(),
+                  ),
+                ),
+                CompositedTransformFollower(
+                  link: _layerLink,
+                  offset: Offset(0, yOffset),
+                  child: dropdown,
                 ),
               ],
             ),
-            child: ClipRRect(
-              borderRadius: radius,
-              child: dropdownContent,
-            ),
           );
-        }
-
-        return DefaultTextStyle.merge(
-          style: TextStyle(
-            decoration: TextDecoration.none,
-            color: isDark ? const Color(0xFFEBEBF5) : const Color(0xFF1C1C1E),
-          ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTapDown: (_) => _removeOverlay(),
-                ),
-              ),
-              CompositedTransformFollower(
-                link: _layerLink,
-                offset: Offset(0, yOffset),
-                child: dropdown,
-              ),
-            ],
-          ),
-        );
-      },
+        }),
+      ),
     );
 
     Overlay.of(context).insert(_overlayEntry!);
@@ -186,6 +191,19 @@ class _CupertinoDropdownPresentationState
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Close when another route is pushed on top; the overlay lives in the
+    // Navigator's overlay and would otherwise float above the new page.
+    final isCurrent = ModalRoute.of(context)?.isCurrent ?? true;
+    if (_overlayEntry != null && !isCurrent) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _removeOverlay();
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _scrollPosition?.removeListener(_onScroll);
     _scrollPosition = null;
@@ -198,7 +216,7 @@ class _CupertinoDropdownPresentationState
   Widget build(BuildContext context) {
     final theme = DunyaPickerTheme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final locale = Localizations.localeOf(context).languageCode;
+    final locale = Localizations.localeOf(context).toString();
     final displayName = widget.selectedCountry != null
         ? (CountryLocalizations.nameOf(
                 widget.selectedCountry!.alpha2, locale) ??

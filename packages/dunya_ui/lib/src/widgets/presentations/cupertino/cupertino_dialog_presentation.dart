@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/dunya_picker_theme.dart';
 import '../../shared/country_list_view.dart';
+import '../../../utils/picker_theme_scope.dart';
 
 /// iOS-style dialog presentation for the country picker.
 ///
@@ -32,7 +33,7 @@ class CupertinoDialogPresentation {
     return showCupertinoDialog<Country>(
       context: context,
       barrierDismissible: true,
-      builder: (context) {
+      builder: themedBuilder(theme, (context) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         final solidColor = theme.resolveSurfaceColor(context);
         final radius = theme.resolveDialogRadius();
@@ -104,7 +105,7 @@ class CupertinoDialogPresentation {
             ),
           ),
         );
-      },
+      }),
     );
   }
 

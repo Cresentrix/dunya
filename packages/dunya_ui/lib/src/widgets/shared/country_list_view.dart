@@ -1,4 +1,5 @@
 import 'package:dunya/dunya.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 
 import '../../theme/dunya_picker_theme.dart';
@@ -49,6 +50,11 @@ class CountryListView extends StatefulWidget {
   /// Text shown in the default empty state.
   final String? noResultsText;
 
+  /// Optional scroll controller for the list, e.g. the one a
+  /// [DraggableScrollableSheet] provides so dragging the list resizes it.
+  /// Not disposed by this widget.
+  final ScrollController? scrollController;
+
   const CountryListView({
     required this.countries,
     required this.onSelected,
@@ -62,6 +68,7 @@ class CountryListView extends StatefulWidget {
     this.favorites = const [],
     this.showSelectedIndicator = true,
     this.noResultsText,
+    this.scrollController,
   });
 
   @override
@@ -72,8 +79,15 @@ class _CountryListViewState extends State<CountryListView> {
   List<Country> _results = [];
   late List<Country> _orderedCountries;
   int _favoritesCount = 0;
-  final ScrollController _scrollController = ScrollController();
+  String _query = '';
+  ScrollController? _ownScrollController;
   bool _didScrollToSelected = false;
+
+  ScrollController get _scrollController =>
+      widget.scrollController ?? (_ownScrollController ??= ScrollController());
+
+  /// Favorites are only pinned when no search is active.
+  int get _activeFavoritesCount => _query.trim().isEmpty ? _favoritesCount : 0;
 
   @override
   void initState() {
@@ -85,10 +99,15 @@ class _CountryListViewState extends State<CountryListView> {
   @override
   void didUpdateWidget(CountryListView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.countries != widget.countries ||
-        oldWidget.favorites != widget.favorites) {
+    // Compare contents: parents often pass a new but equal list on each
+    // build, which used to reset the list while a search was active.
+    if (!listEquals(oldWidget.countries, widget.countries) ||
+        !listEquals(oldWidget.favorites, widget.favorites)) {
       _applyFavorites();
-      _results = _orderedCountries;
+      _results = _search(_query);
+    }
+    if (oldWidget.selectedCountry != widget.selectedCountry) {
+      _didScrollToSelected = false;
     }
   }
 
@@ -101,15 +120,35 @@ class _CountryListViewState extends State<CountryListView> {
 
   void _onSearch(String query) {
     setState(() {
-      final locale = Localizations.localeOf(context).languageCode;
-      final searched = CountrySearch.search(
-        widget.countries,
-        query,
-        locale: locale,
-      );
-      _results = query.trim().isEmpty ? _orderedCountries : searched;
+      _query = query;
+      _results = _search(query);
     });
   }
+
+  List<Country> _search(String query) {
+    if (query.trim().isEmpty) return _orderedCountries;
+    return CountrySearch.search(
+      widget.countries,
+      query,
+      locale: Localizations.localeOf(context).toString(),
+    );
+  }
+
+  /// Scroll offset of the row at [index], including the separators above it.
+  double _offsetFor(int index, DunyaPickerTheme theme) {
+    final itemHeight = theme.resolveItemHeight();
+    if (!theme.resolveShowDividers()) return index * itemHeight;
+    final dividerHeight = widget.useCupertino ? 0.5 : 1.0;
+    var offset = index * (itemHeight + dividerHeight);
+    final favorites = _activeFavoritesCount;
+    if (favorites > 0 && index >= favorites) {
+      // The separator after the favorites is 8px instead of a divider.
+      offset += _favoritesSeparatorHeight - dividerHeight;
+    }
+    return offset;
+  }
+
+  static const double _favoritesSeparatorHeight = 8;
 
   void _scrollToSelected() {
     if (_didScrollToSelected ||
@@ -122,9 +161,7 @@ class _CountryListViewState extends State<CountryListView> {
     final index = _results.indexWhere((c) => c == widget.selectedCountry);
     if (index < 0) return;
 
-    final theme = DunyaPickerTheme.of(context);
-    final itemHeight = theme.resolveItemHeight();
-    final offset = index * itemHeight;
+    final offset = _offsetFor(index, DunyaPickerTheme.of(context));
     final maxScroll = _scrollController.position.maxScrollExtent;
 
     _scrollController.jumpTo(offset.clamp(0.0, maxScroll));
@@ -132,7 +169,7 @@ class _CountryListViewState extends State<CountryListView> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _ownScrollController?.dispose();
     super.dispose();
   }
 
@@ -181,10 +218,10 @@ class _CountryListViewState extends State<CountryListView> {
                             return const SizedBox.shrink();
                           }
                           // Thicker separator after favorites section
-                          if (_favoritesCount > 0 &&
-                              index == _favoritesCount - 1) {
+                          if (_activeFavoritesCount > 0 &&
+                              index == _activeFavoritesCount - 1) {
                             return Container(
-                              height: 8,
+                              height: _favoritesSeparatorHeight,
                               color: isDark
                                   ? const Color(0xFF1C1C1E)
                                   : const Color(0xFFF2F2F7),
@@ -209,11 +246,13 @@ class _CountryListViewState extends State<CountryListView> {
                         },
                       ),
                     ),
-                    if (_results.length > 15)
+                    // Letters come from English names, so hide the bar
+                    // when rows show translated names.
+                    if (_results.length > 15 && !_showsLocalizedNames())
                       _AlphabetScrollBar(
                         results: _results,
-                        favoritesCount: _favoritesCount,
-                        itemHeight: theme.resolveItemHeight(),
+                        favoritesCount: _activeFavoritesCount,
+                        offsetFor: (i) => _offsetFor(i, theme),
                         scrollController: _scrollController,
                         isDark: isDark,
                       ),
@@ -222,6 +261,12 @@ class _CountryListViewState extends State<CountryListView> {
         ),
       ],
     );
+  }
+
+  bool _showsLocalizedNames() {
+    if (_results.isEmpty) return false;
+    final locale = Localizations.localeOf(context).toString();
+    return CountryLocalizations.nameOf(_results.last.alpha2, locale) != null;
   }
 
   Widget _buildEmptyState(BuildContext context, bool isDark) {
@@ -262,14 +307,14 @@ class _CountryListViewState extends State<CountryListView> {
 class _AlphabetScrollBar extends StatelessWidget {
   final List<Country> results;
   final int favoritesCount;
-  final double itemHeight;
+  final double Function(int index) offsetFor;
   final ScrollController scrollController;
   final bool isDark;
 
   const _AlphabetScrollBar({
     required this.results,
     required this.favoritesCount,
-    required this.itemHeight,
+    required this.offsetFor,
     required this.scrollController,
     required this.isDark,
   });
@@ -292,7 +337,10 @@ class _AlphabetScrollBar extends StatelessWidget {
       builder: (context, constraints) {
         final availableHeight = constraints.maxHeight - 8; // 4px padding each
         final maxLetterHeight = availableHeight / sortedLetters.length;
-        final letterHeight = maxLetterHeight.clamp(10.0, 16.0);
+        // Too short to fit legible letters (e.g. a dropdown near the
+        // bottom of the screen): hide the bar instead of overflowing.
+        if (maxLetterHeight < 8) return const SizedBox.shrink();
+        final letterHeight = maxLetterHeight.clamp(8.0, 16.0);
         final fontSize = (letterHeight * 0.65).clamp(7.0, 10.0);
 
         return GestureDetector(
@@ -358,10 +406,10 @@ class _AlphabetScrollBar extends StatelessWidget {
         (adjustedY / letterHeight).floor().clamp(0, letters.length - 1);
     final targetLetter = letters[index];
 
-    // Find the first country starting with this letter
-    for (var i = 0; i < results.length; i++) {
+    // Find the first non-favorite country starting with this letter
+    for (var i = favoritesCount; i < results.length; i++) {
       if (results[i].name[0].toUpperCase() == targetLetter) {
-        final offset = i * itemHeight;
+        final offset = offsetFor(i);
         final maxScroll = scrollController.position.maxScrollExtent;
         scrollController.jumpTo(offset.clamp(0.0, maxScroll));
         break;
