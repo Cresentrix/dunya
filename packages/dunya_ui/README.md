@@ -112,7 +112,7 @@ phone.isValid            // true
 DunyaCountryPicker(
   countries: CountryRepository.all,
   favorites: const ['KW', 'US', 'GB'], // pinned to top
-  exclude: const ['KP', 'IR'],         // hidden from list
+  exclude: const ['AQ', 'BV'],         // hidden from list
   onSelected: ...,
 )
 ```
